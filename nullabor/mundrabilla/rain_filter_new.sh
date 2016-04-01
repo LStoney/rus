@@ -31,7 +31,7 @@ ln -s original_data/IDCJAC0001_011008_Data12.csv tmp3.d      # input file, month
 
 ############   FILTER MONTHLY RAINFALL DATA ################################
 
-awk -F"," -v MISSVAL=-999 '                    # define missing value
+awk -F"," -v MISSVAL=NaN '                    # define missing value
 
          
           
@@ -109,7 +109,7 @@ awk -F"," -v MISSVAL=-999 '                    # define missing value
 
 
 
-           }' tmp2.d > filtered_data/newTEST.dat             # save in output file
+           }' tmp2.d > filtered_data/dec_filtered.dat             # save in output file
 
 
 
