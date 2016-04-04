@@ -66,7 +66,7 @@ awk -F"," -v MISSVAL=NaN '                    # define missing value
            
            
            
-           MONTH = 12       # select particular month
+           MONTH = 11       # select particular month
            
                              # select data between Jan 1902 and Dec 2015
                    
@@ -109,7 +109,7 @@ awk -F"," -v MISSVAL=NaN '                    # define missing value
 
 
 
-           }' tmp2.d > filtered_data/dec_filtered.dat             # save in output file
+           }' tmp2.d > filtered_data/nov_filtered.dat             # save in output file
 
 
 

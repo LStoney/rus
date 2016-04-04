@@ -27,26 +27,43 @@ function [] = spatial_correlation(rain_file,ncep_file,type,var)
 monthly_data1=importdata(rain_file);       % read filtered monthly data
 m1year=monthly_data1(:,1);              % extract year info
 
-lines=78:113;                       %1979-2014   (for yearly,                                    
+
+% read only these lines/dates of the rainfall data
+%lines=78:113;                       %1979-2014   (for yearly,aug-dec)                                    
 %lines=79:114;                       %1980-2015    (for summer)
-%lines=78:114                          %1979-2015 (for jan,
+lines=78:114;                          %1979-2015 (for jan-july)
 
 
 
 % ###### IMPORTANT ##########
 % P=2 for summer data, P=3 for monthly data, P=4 for yearly data!!!!!
-
 P=3;
-
 
 m1rain=monthly_data1(:,P);             % extract rainfall data, read Pth position in dat file
 rain=m1rain(lines);
 years=m1year(lines);
 
 
-fprintf('\n\n ??? Have you set P=3 for monthly data,P=4 for yearly data, etc. ????\n\n')
-% ############################
 
+
+% Optional test with NINO3.4 data
+% Test with january ncep data
+%
+ninodata=importdata('../nina34.data');
+years=ninodata(:,1);
+M=2;   % M=2 (Jan)....M=13 (Dec)
+m1rain=ninodata(:,M);
+rain=m1rain(32:68);
+years=years(32:68);
+%}
+
+
+
+button = questdlg('Have you set the correct values of ''P'' and ''lines'' ?');
+
+if (strcmp(button,'Yes')==0)
+    return
+end
 
 
 
@@ -80,8 +97,15 @@ else
      fprintf('WARNING: length of rain record does not match Jan1984 - July2015 period...\n\n')
 end    
 
+size(years)
+size(t)
+size(rain)
+
+
+format long
 fprintf('\n\n using the following years and rainfall amounts...\n\n')
-[years,rain]
+fprintf('\n\n rain years // reanalysis years  //  rainfall')
+[years,1800+((t/24)/365),rain]
 
 
 
@@ -100,8 +124,9 @@ for k=1:numel(t)               % Reformat missing values to matlab "NaN"
      end     
 end
 
+rain=nan_detrend(rain);
 rain=filter([1,-1],1,rain);
-%rain=detrend(rain);
+
 
 
 
@@ -120,10 +145,10 @@ for i=1:numel(x);                       % go through each x,y coordinate in ncep
         end
                
         
-        %field_time_series=detrend(field_time_series);             % DETREND does this handle missing values correctly?
+        field_time_series=nan_detrend(field_time_series);             % DETREND does this handle missing values correctly?
         field_time_series=filter([1,-1],1,field_time_series);      % FIRST DIFFERENCE
-        
-     
+      
+         % NOTE: first differencing and detrending may introduce negative numbers
         
             
             
@@ -142,27 +167,46 @@ for i=1:numel(x);                       % go through each x,y coordinate in ncep
         end
         
 
+       
+        
+        
 
     end
 end
 
-
-figure(1)
+%{
+figure()
 contourf(x,y,R2',20,'linestyle','none')
-colorbar
+hold on
+cb=colorbar;
+c=axis;
+cmin=c(1,1);
+cmax=c(1,2);
+%}
 
-%
-figure(2)
+figure()
+m_proj('Hammer-Aitoff','lon',[50,210],'lat',[-50 10]);
+m_coast('linewidth',1,'color','k');
+m_grid;
+hold on;
+m_contourf(x,y,R2',20,'linestyle','none')
+title(strcat(var,{' // '},type));
+colorbar;
+%caxis([-0.8 0.8]);
+
+figure()
 m_proj('Hammer-Aitoff','lon',[50,210],'lat',[-50 10]);
 m_coast('linewidth',1,'color','k');
 m_grid;
 
 hold on;
 m_contourf(x,y,R',20,'linestyle','none')
+title(strcat(var,{' // '},type));
 hold on;
-%m_contourf(x,y,R',20,'linestyle','none')
-colorbar
+colorbar;
+%caxis([-1 1]);
 %}
+
 
 
 end
