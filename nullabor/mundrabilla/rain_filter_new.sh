@@ -24,7 +24,31 @@ ln -s original_data/IDCJAC0001_011008_Data12.csv tmp3.d      # input file, month
 
 ############   FILTER DAILY RAINFALL DATA ################################
 
+awk -F"," -v MISSVAL=NaN '
 
+          NR < 2 {next}
+                                            
+          
+          {
+          
+            if ( ($6>=0)  && (substr($8,1,1) == "Y" )   )
+            {
+               RAIN = $6
+               VERIFIED=1              
+            }
+            else
+            {
+               RAIN = MISSVAL
+               VERIFIED=0
+            }
+            
+            
+            print $3,$4,$5,RAIN,VERIFIED
+          
+          }' tmp1.d > filtered_data/daily_filtered.dat
+          
+          
+          
 
 
 
@@ -66,7 +90,7 @@ awk -F"," -v MISSVAL=NaN '                    # define missing value
            
            
            
-           MONTH = 11       # select particular month
+           MONTH = 10       # select particular month
            
                              # select data between Jan 1902 and Dec 2015
                    
@@ -109,7 +133,7 @@ awk -F"," -v MISSVAL=NaN '                    # define missing value
 
 
 
-           }' tmp2.d > filtered_data/nov_filtered.dat             # save in output file
+           }' tmp2.d > filtered_data/oct_filtered.dat             # save in output file
 
 
 
