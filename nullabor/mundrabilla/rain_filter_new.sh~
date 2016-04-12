@@ -33,15 +33,25 @@ awk -F"," -v MISSVAL=NaN '
           
             if ( ($6>=0)  && (substr($8,1,1) == "Y" )   )
             {
-               RAIN = $6              
+               RAIN = $6
+               VERIFIED=1              
             }
             else
             {
                RAIN = MISSVAL
+               VERIFIED=0
             }
             
-            
-            print $3,$4,$5,RAIN,$8
+            if (($4>3) && ($4<11))          #summer rainfall
+            { 
+              SRAIN=MISSVAL            
+            }
+            else
+            {
+              SRAIN=RAIN
+            }
+         
+            print $3,$4,$5,RAIN,SRAIN,VERIFIED
           
           }' tmp1.d > filtered_data/daily_filtered.dat
           

@@ -24,7 +24,7 @@ ln -s original_data/IDCJAC0001_011008_Data12.csv tmp3.d      # input file, month
 
 ############   FILTER DAILY RAINFALL DATA ################################
 
-awk -F"," -v MISSVAL=NaN '
+awk -F"," -v MISSVAL=-999 '
 
           NR < 2 {next}
                                             
@@ -42,10 +42,18 @@ awk -F"," -v MISSVAL=NaN '
                VERIFIED=0
             }
             
-            
-            print $3,$4,$5,RAIN,VERIFIED
+            if (($4>3) && ($4<11))          #summer rainfall
+            { 
+              SRAIN=MISSVAL            
+            }
+            else
+            {
+              SRAIN=RAIN
+            }
+         
+            print $3,$4,$5,RAIN,SRAIN,VERIFIED
           
-          }' tmp1.d > filtered_data/daily_filtered.dat
+          }' tmp1.d > filtered_data/daily_filtered2.dat
           
           
           
