@@ -1,0 +1,36 @@
+
+
+
+
+ln -s ./dmi_HadISST.txt tmp1.d      
+
+
+
+
+
+
+############   FILTER DAILY RAINFALL DATA ################################
+
+
+awk -F"," -v MISSVAL=-999 '                    # define missing value
+
+        
+      
+
+          { 
+           
+       
+           if ($2==8)
+           {
+              print $2,$3
+           }
+           
+           
+           }' tmp1.d > IOD.dat             # save in output file
+           
+           
+
+
+rm tmp1.d
+
+

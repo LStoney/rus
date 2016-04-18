@@ -1,0 +1,20 @@
+filein=$1
+
+bash month.sh $filein 1 57
+bash month.sh $filein 2 57
+bash month.sh $filein 3 57
+bash month.sh $filein 4 57
+bash month.sh $filein 5 57
+bash month.sh $filein 6 57
+bash month.sh $filein 7 57
+bash month.sh $filein 8 57
+bash month.sh $filein 9 57
+bash month.sh $filein 10 57
+bash month.sh $filein 11 57
+bash month.sh $filein 12 57
+
+bash year.sh $filein 57
+
+bash summer.sh $filein 56
+
+bash winter.sh $filein 57

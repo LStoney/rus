@@ -45,7 +45,7 @@ awk -F"," -v MISSVAL=-999 '                    # define missing value
              if ($6>=5)
              {
                count=count+1
-               print count,$3,$4,$5,$6 #,$7,VERIFIED
+               print count,$3,$4,$5,$6,$7,VERIFIED
              }
         
            }

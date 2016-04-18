@@ -17,7 +17,9 @@ function [] = spatial_correlation(rain_file,ncep_file,type,var)
 %
 % type - 'monthly','yearly','summer','winter'  -goes in plot title
 %
-% var - variable in ncep file (e.g. 'mslp','sst','skt')
+% var - variable in ncep file (e.g. 'mslp','sst','skt','olr','ulwrf')
+%     - use 'skt' if opening ncep sst data. 'slp' for ncep1 slp data.
+%     - 'mslp' for ncep2 mslp data.
 %
 % (Please see LOG.odt for info on the filtered/modified data files)
 %
@@ -52,19 +54,16 @@ lag=1;
 %lines=(35430+lag):(37621+lag);
 %lines=35735:35885;
 
-
 %lines=47:114;          % 1948-2015 MSLP1 / ULRF
 %lines=48:114;          % 1949-2015 summer
 
 
 % OLR
-
-lines=75:112;
+%lines=75:112;
 
 
 %For ERSST and HADSST
-
-%lines=1:114;            %1902-2015  ,all months, yearly, winter
+lines=1:114;            %1902-2015  ,all months, yearly, winter
 %lines=2:114;             %1903-2015, summer data
 
 
@@ -75,7 +74,7 @@ lines=75:112;
 % data. If reading the file daily_filtered.dat, then P=4 for daily
 % rainfall,P=5 for only summer daily rainfall.
 
-P=2;
+P=3;
 m1rain=monthly_data1(:,P);             % extract rainfall amounts, read Pth position in dat file
 rain=m1rain(lines);
 years=m1year(lines);
@@ -85,25 +84,26 @@ years=m1year(lines);
 
 
 
-% Optional test with NINO3.4 data
+% ****************  Optional test with NINO3.4 data *********************
+
 % i.e this replaces rainfall time series with NINO3.4 time series. 
 % This reads the data from the file /rus/nina43.data
 % Use 1950-2015
 %{
-ninodata=importdata('../soi.dat');
+ninodata=importdata('../nina34.data');
 years=ninodata(:,1);
-M=2;   % M=2 (Jan)....M=13 (Dec)
+M=12;   % M=2 (Jan)....M=13 (Dec)
 m1rain=ninodata(:,M);
 %rain=m1rain(32:68);    % if using ncep data
 %years=years(32:68);
 
 % if using ERSST data
-%rain=m1rain(3:68);
-%years=years(3:68);
+rain=m1rain(3:68);
+years=years(3:68);
 % Need to edit code to read only these dates of the gridded data as well.
 % i.e. at line 116 t=t(49:114) and line 174 field(i,j,49:114)
 %}
-
+% ***********************************************************************
 
 
 
@@ -119,7 +119,7 @@ end
 % Again, 'ncep_file' is a misleading variable name. ncep_file can refer
 % to any gridded dataset (e.g ersst)
 
-field=ncread(ncep_file,var)+273;
+field=ncread(ncep_file,var);
 y=ncread(ncep_file,'lat');
 %y=ncread(ncep_file,'latitude');
 x=ncread(ncep_file,'lon');
@@ -139,8 +139,8 @@ rain_size=numel(rain);
 format long
 fprintf('\n\n using the following years and rainfall amounts...\n\n')
 fprintf('\n\n rain years // reanalysis years  //  rainfall')
-[years,1800+((t/24)/365),rain]
-%[years,1800+(t/365),rain]        %ersst
+%[years,1800+((t/24)/365),rain]
+[years,1800+(t/365),rain]        %ersst
 
 
 
@@ -160,7 +160,7 @@ for k=1:numel(t)               % Reformat missing values in rain data to matlab 
      end     
 end
 
-rain=nan_detrend(rain);            % detrend rain data
+%rain=nan_detrend(rain);            % detrend rain data
 rain=filter([1,-1],1,rain);        % calculate first differences
 
 
@@ -181,16 +181,17 @@ for i=1:numel(x);                       % go through each x,y coordinate in grid
         end
                
         
-        field_time_series=nan_detrend(field_time_series);             % DETREND does this handle missing values correctly?
+     
+        
+        %field_time_series=nan_detrend(field_time_series);             % DETREND does this handle missing values correctly?
         field_time_series=filter([1,-1],1,field_time_series);      % FIRST DIFFERENCES
       
-         % NOTE: first differencing and detrending may introduce negative numbers
         
             
-        [G,H]=corr(field_time_series(2:end),field_time_series(1:end-1),'rows','pairwise','type','Spearman'); %autocorrelate gridded data
+        [G,H]=corr(field_time_series(1:end-1),field_time_series(2:end),'rows','pairwise','type','Spearman'); %autocorrelate gridded data
         
         if (G>0)
-          AC(i,j)=G;     % keep positive autocorrelation values    (sign of "perisistence" in the data)                  
+          AC(i,j)=G;     % keep positive autocorrelation values              
         end
         
         
@@ -204,13 +205,10 @@ for i=1:numel(x);                       % go through each x,y coordinate in grid
         [r,p]=corr(field_time_series,rain,'rows','pairwise','type','Spearman');
 
         
-        %P=p(1,2);            % p value / statistical significance
-        PP=p;
+        PP=p;         % statistical p=value
+
         
-        %R(i,j)=r(1,2);       % correlation coefficient       
-        %R2(i,j)=r(1,2);      % copy
-        
-        R(i,j)=r;             
+        R(i,j)=r;    % correlation coefficient         
         R2(i,j)=r;           
         
         if (PP>=0.05)          % only plot significant correlations
