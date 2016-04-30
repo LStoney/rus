@@ -63,9 +63,17 @@ lag=1;
 
 
 %For ERSST and HADSST
-lines=1:114;            %1902-2015  ,all months, yearly, winter
+%lines=1:114;            %1902-2015  ,all months, yearly, winter
 %lines=2:114;             %1903-2015, summer data
 
+
+
+% IF USING EUCLA RAIN DATA
+
+%lines=73:140;         %NCEP1 and ECULA
+
+%lines=27:140;          % ERSST and EUCLA
+lines=1:140;           % ERSST_1876 and EUCLA
 
 
 
@@ -74,7 +82,9 @@ lines=1:114;            %1902-2015  ,all months, yearly, winter
 % data. If reading the file daily_filtered.dat, then P=4 for daily
 % rainfall,P=5 for only summer daily rainfall.
 
-P=3;
+P=4;
+
+
 m1rain=monthly_data1(:,P);             % extract rainfall amounts, read Pth position in dat file
 rain=m1rain(lines);
 years=m1year(lines);
@@ -155,7 +165,7 @@ AC=R;                               % intialise autocorrelation field
 
 for k=1:numel(t)               % Reformat missing values in rain data to matlab "NaN"
    
-     if (rain(k) < 0)
+     if ~(rain(k) >= 0)
         rain(k) = NaN ;
      end     
 end
