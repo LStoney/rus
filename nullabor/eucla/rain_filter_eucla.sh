@@ -259,23 +259,30 @@ awk -F"," -v MISSVAL=NaN '                    # define missing value
                winter = MISSVAL
             }
           
+           
+            print $3,12,december
           
-        
-          
-            print $3,summer,winter,yearly
-            #print $3,summer
+            #print $3,summer,winter,yearly
+            ##print $3,summer
           }
       
           
           if ($3==1927)
           {
-            #print 1928,MISSVAL
-            print 1928,MISSVAL,MISSVAL,MISSVAL
+            ##print 1928,MISSVAL
+            #print 1928,MISSVAL,MISSVAL,MISSVAL
+
+            print 1928,12,MISSVAL
+            
             residual=MISSVAL
           }
       
-      
-           }' tmp3.d > filtered_data/TEST.dat             # save in output file
+          if ($3 < 2016)
+          {
+            
+          }
+          
+           }' tmp3.d > filtered_data/dec_filtered.dat             # save in output file
 
 rm tmp*.d
 

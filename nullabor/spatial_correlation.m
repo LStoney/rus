@@ -41,24 +41,26 @@ m1year=monthly_data1(:,1);              % extract year info
 
 % read only these lines/dates of the rainfall data
 
-% FOR NCEP
+% FOR NCEP2 data
 
 %lines=78:113;                       %1979-2014   (for yearly,aug-dec)                                    
 %lines=79:114;                       %1980-2015    (for summer)
 %lines=78:114;                          %1979-2015 (for jan-july)
 
-% daily NCEP
+
+% daily NCEP2 data
 lag=1;             
 %lines=35430:35795;
 %lines=35430:37621; 
 %lines=(35430+lag):(37621+lag);
 %lines=35735:35885;
 
-%lines=47:114;          % 1948-2015 MSLP1 / ULRF
+% for NCEP1 data
+lines=47:114;          % 1948-2015 MSLP1 / ULRF 
 %lines=48:114;          % 1949-2015 summer
 
 
-% OLR
+% fpr OLR data
 %lines=75:112;
 
 
@@ -70,10 +72,11 @@ lag=1;
 
 % IF USING EUCLA RAIN DATA
 
-%lines=73:140;         %NCEP1 and ECULA
+%lines=73:140;         % NCEP1 and EUCLA
 
 %lines=27:140;          % ERSST and EUCLA
-lines=1:140;           % ERSST_1876 and EUCLA
+
+%lines=1:140;           % ERSST_1876 or ERSST_v3 and EUCLA
 
 
 
@@ -104,14 +107,15 @@ ninodata=importdata('../nina34.data');
 years=ninodata(:,1);
 M=12;   % M=2 (Jan)....M=13 (Dec)
 m1rain=ninodata(:,M);
-%rain=m1rain(32:68);    % if using ncep data
+%rain=m1rain(32:68);    % if using ncep2 data
 %years=years(32:68);
 
-% if using ERSST data
+
+% if using ERSST data or ncep1 data
 rain=m1rain(3:68);
 years=years(3:68);
 % Need to edit code to read only these dates of the gridded data as well.
-% i.e. at line 116 t=t(49:114) and line 174 field(i,j,49:114)
+% i.e. at line 141 t=t(49:114) and line 185 field(i,j,49:114)
 %}
 % ***********************************************************************
 
@@ -136,7 +140,7 @@ x=ncread(ncep_file,'lon');
 %x=ncread(ncep_file,'longitude')
 t=ncread(ncep_file,'time');
 %t=t(49:114);
-
+%t=t(3:68);
 
 
 ncep_size=size(field);
@@ -149,8 +153,8 @@ rain_size=numel(rain);
 format long
 fprintf('\n\n using the following years and rainfall amounts...\n\n')
 fprintf('\n\n rain years // reanalysis years  //  rainfall')
-%[years,1800+((t/24)/365),rain]
-[years,1800+(t/365),rain]        %ersst
+[years,1800+((t/24)/365),rain]   % ncep 
+%[years,1800+(t/365),rain]        %ersst
 
 
 
@@ -174,7 +178,7 @@ end
 rain=filter([1,-1],1,rain);        % calculate first differences
 
 
-
+count=1;
 
 for i=1:numel(x);                       % go through each x,y coordinate in gridded data
     for j=1:numel(y);
@@ -193,7 +197,7 @@ for i=1:numel(x);                       % go through each x,y coordinate in grid
         
      
         
-        %field_time_series=nan_detrend(field_time_series);             % DETREND does this handle missing values correctly?
+        %field_time_series=nan_detrend(field_time_series);             % DETREND - does this handle missing values correctly?
         field_time_series=filter([1,-1],1,field_time_series);      % FIRST DIFFERENCES
       
         
@@ -215,16 +219,21 @@ for i=1:numel(x);                       % go through each x,y coordinate in grid
         [r,p]=corr(field_time_series,rain,'rows','pairwise','type','Spearman');
 
         
-        PP=p;         % statistical p=value
+        PP=p;         % statistical p-value
 
         
         R(i,j)=r;    % correlation coefficient         
         R2(i,j)=r;           
         
-        if (PP>=0.05)          % only plot significant correlations
+        
+        
+        if (PP>=0.01)          %  filter significant correlations
            R(i,j)=NaN; 
+           XS(count)=x(i);     % scatterplot at these grid points 
+           YS(count)=y(j);
+           count=count+1;
         else
-           %R2(i,j)=NaN;
+           %R2(i,j)=NaN;          
         end
         
 
@@ -269,6 +278,7 @@ cb=colorbar;
 
 
 % Aus region, all corelations
+
 figure(4);
 m_proj('Hammer-Aitoff','lon',[50,210],'lat',[-50 10]);
 m_coast('linewidth',1,'color','k');
@@ -278,11 +288,13 @@ m_contourf(x,y,R2',20,'linestyle','none')
 %title(strcat(var,{' // '},type));
 colorbar;
 [cmin cmax]=caxis;
-saveas(figure(4),'TEST1.png')
+m_scatter(XS,YS,10,'k','filled')
+title(strcat(var,{' // '},type,{' // p<0.01'}),'Fontsize',30);
+%saveas(figure(4),'TEST1.png')
 %print('TEST1.png','-dpng','-r300');
 
 
-
+%{
 % Aus region, significant correlations only
 
 figure(5);

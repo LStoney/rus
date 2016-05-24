@@ -40,7 +40,7 @@ awk -F"," -v MISSVAL=-999 '                    # define missing value
            
                              # select summer data between 1979 and 2016
                              
-           if (   ($3 > 1978) && ($3 < 2016) && ( ($4>10) || ($4<4) ) && (VERIFIED==1) )
+           if (   ($3 > 1998) && ($3 < 2016) && ( ($4>10) || ($4<4) ) && (VERIFIED==1) )
            {  
              if ($6>=5)
              {
@@ -52,7 +52,7 @@ awk -F"," -v MISSVAL=-999 '                    # define missing value
            
            
            
-           }' tmp1.d > filtered_data/high_rainfall_days.dat             # save in output file
+           }' tmp1.d > filtered_data/high_rainfall_days.txt          # save in output file
            
            
 
